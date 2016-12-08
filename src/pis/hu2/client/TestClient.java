@@ -10,17 +10,17 @@ import java.net.UnknownHostException;
 /**
  * Created by Dijivu on 08.12.2016.
  */
-public class TestClient {
+ public class TestClient {
 
 
 
     public static void main(String[] args) {
-        String host =""; // Rechner-Name bzw. Adresse
-        int port; // Port Nummer
+        String host ="localhost"; // Rechner-Name bzw. Adresse
+        int port = 2222; // Port Nummer
         Socket s = null;
         try{
-            host =  args[0];
-            port = Integer.parseInt(args[1]);
+           // host =  args[0];
+           // port = Integer.parseInt(args[1]);
             s = new Socket( host,port);
 
             BufferedReader toServer = new BufferedReader( new InputStreamReader(s.getInputStream()));
@@ -40,13 +40,15 @@ public class TestClient {
             s.close();
         }
         catch (ArrayIndexOutOfBoundsException ae){
+
                 System.out.println("Aufruf: ");
-            System.out.println("java Client <HostName <PortNr> ");
+            System.out.println("java Client <HostName> <PortNr> ");
         }
         catch (UnknownHostException ue){
             System.out.println("Kein DNS-Eintrag fuer " + host);
         }
         catch (IOException e){
+            //System.out.println(e);
         System.out.println("IO-Error");
         }
     }
