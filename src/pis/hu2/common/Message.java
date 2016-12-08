@@ -7,18 +7,34 @@ public class Message {
 
    private String command;
     private String message;
-    public  Message(String command, String message){
-        if(command != ""){
-            this.command = command;
+    public  Message(String inputmsg){
+
+        String[] msg = inputmsg.split(":");
+
+        this.command = msg[0];
+
+        for(int i =1; i<msg.length;i++){
+            this.message = this.message + msg[i];
+
         }
-        this.message = message;
+
+    }
+
+    public  Message(String com,String msg){
+        if(!msg.contains(":")){
+            this.command = com;
+            this.message = msg;
+        }
 
     }
 
 
-    public String  getfinalMessage(){
+    public String  getMessage(){
+
         return command +":" + message+"/n";
     }
+
+
 
 
 }

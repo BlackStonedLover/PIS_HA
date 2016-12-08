@@ -48,4 +48,10 @@ import java.net.UnknownHostException;
         System.out.println("IO-Error");
         }
     }
+
+
+    public  void connect(){
+
+    }
+
 }

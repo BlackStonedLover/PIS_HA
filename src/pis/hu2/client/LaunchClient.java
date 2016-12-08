@@ -5,6 +5,12 @@ package pis.hu2.client;
  */
 public class LaunchClient {
 
+    private static  String adress;
+    private static int port;
+
+    public static void main(String[] args) {
+        Client c = new Client(adress,port,"Test");
+    }
 
 
 }
