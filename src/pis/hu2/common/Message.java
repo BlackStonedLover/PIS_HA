@@ -17,7 +17,7 @@ public class Message {
 
 
     public String  getfinalMessage(){
-        return command +":" + message;
+        return command +":" + message+"/n";
     }
 
 
