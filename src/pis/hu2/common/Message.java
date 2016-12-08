@@ -29,12 +29,19 @@ public class Message {
     }
 
 
-    public String  getMessage(){
+    public String  getMessageAsString(){
 
         return command +":" + message+"/n";
     }
 
 
+    public String[]  getMessageAsStringArray(){
+
+        String[] cmdMsg = new String[2];
+        cmdMsg[0] = command;
+        cmdMsg[1] =message;
+        return cmdMsg;
+    }
 
 
 }

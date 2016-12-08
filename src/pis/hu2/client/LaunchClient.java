@@ -5,8 +5,8 @@ package pis.hu2.client;
  */
 public class LaunchClient {
 
-    private static  String adress;
-    private static int port;
+    private static  String adress ="localhost";
+    private static int port =2222;
 
     public static void main(String[] args) {
         Client c = new Client(adress,port,"Test");

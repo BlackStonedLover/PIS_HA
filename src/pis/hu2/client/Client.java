@@ -50,9 +50,9 @@ public class Client {
             toServer = new PrintWriter(s.getOutputStream(), true);
 
             Message msg = new Message("connect", nickname);
-            toServer.write(msg.getMessage());
+            toServer.write(msg.getMessageAsString());
             Message result = new Message(fromServer.readLine());
-            if (result.getMessage().equals("connect:ok")) ;
+            if (result.getMessageAsString().equals("connect:ok")) ;
             {
                 //Verbindung Aufgebaut
                 System.out.println("Verbindung hergestellt");

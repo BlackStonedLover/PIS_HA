@@ -42,8 +42,8 @@ public class DataTimeProtocoll {
             zumClient.println("Geben Sie DATE oder TIME ein");
             String wunsch = vomClient.readLine(); // v. Client empfangen
             Date jetzt = new Date(); // Zeitpunkt bestimmen vom Client empfangenes Kommando ausfuehren 
-            if (wunsch.equalsIgnoreCase("date")) 
-                zumClient.println("test");
+            if (wunsch.equalsIgnoreCase("connect:Test"))
+                zumClient.println("connect:ok");
             else if (wunsch.equalsIgnoreCase("time")) 
                 zumClient.println("test");
             else 
