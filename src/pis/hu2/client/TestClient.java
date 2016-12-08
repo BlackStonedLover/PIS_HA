@@ -15,18 +15,14 @@ import java.net.UnknownHostException;
 
 
     public static void main(String[] args) {
-        String host ="localhost"; // Rechner-Name bzw. Adresse
+        String host ="213.73.99.169"; // Rechner-Name bzw. Adresse
         int port = 2222; // Port Nummer
         Socket s = null;
         try{
-           // host =  args[0];
-           // port = Integer.parseInt(args[1]);
+
             s = new Socket( host,port);
-
             BufferedReader toServer = new BufferedReader( new InputStreamReader(s.getInputStream()));
-
             PrintWriter fromServer = new PrintWriter(s.getOutputStream(), true);
-
             BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 
 

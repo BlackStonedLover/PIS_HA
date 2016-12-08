@@ -20,29 +20,8 @@ import javafx.stage.Stage;
  *
  * @author CKC
  */
-public class LaunchServer extends Application {
+public class LaunchServer   {
     
-    @Override
-    public void start(Stage primaryStage) {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
-        
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-        
-        Scene scene = new Scene(root, 300, 250);
-        
-        primaryStage.setTitle("Hello World!");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
 
     /**
      * @param args the command line arguments
@@ -50,7 +29,7 @@ public class LaunchServer extends Application {
     public static void main(String[] args) {
         
         try {
-            int port = 2222; // Port-Nummer 
+            int port = 2222; // Port-Nummer
             ServerSocket server = new ServerSocket(port); // Server-Socket 
             System.out.println("DateTimeServer laeuft"); // Statusmeldung 
             Socket s = server.accept(); // Client-Verbindung akzeptieren 

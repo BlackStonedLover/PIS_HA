@@ -19,8 +19,8 @@ import java.util.Date;
  */
 public class DataTimeProtocoll {
     
-    static SimpleDateFormat time = new SimpleDateFormat("’Es ist gerade ’H’.’mm’ Uhr.’");
-    static SimpleDateFormat date = new SimpleDateFormat("’Heute ist ’EEEE’, der ’dd.MM.yy");
+//    static SimpleDateFormat time = new SimpleDateFormat("’Es ist gerade ’H’.’mm’ Uhr.’");
+  //  static SimpleDateFormat date = new SimpleDateFormat("’Heute ist ’EEEE’, der ’dd.MM.yy");
     Socket s; // Socket in Verbindung mit dem Client
     BufferedReader vomClient; // Eingabe-Strom vom Client
     PrintWriter zumClient; // Ausgabe-Strom zum Client
@@ -43,9 +43,9 @@ public class DataTimeProtocoll {
             String wunsch = vomClient.readLine(); // v. Client empfangen
             Date jetzt = new Date(); // Zeitpunkt bestimmen vom Client empfangenes Kommando ausfuehren 
             if (wunsch.equalsIgnoreCase("date")) 
-                zumClient.println(date.format(jetzt)); 
+                zumClient.println("test");
             else if (wunsch.equalsIgnoreCase("time")) 
-                zumClient.println(time.format(jetzt)); 
+                zumClient.println("test");
             else 
                 zumClient.println(wunsch +" ist als Kommando unzulaessig!"); 
             s.close(); // Socket (und damit auch Stroeme) schliessen 
