@@ -5,38 +5,35 @@ package pis.hu2.common;
  */
 public class Message {
 
-   private String command;
-    private String message;
+   private String command="";
+    private String message="";
+
     public  Message(String inputmsg){
-
+        System.out.println(inputmsg);
         String[] msg = inputmsg.split(":");
-
         this.command = msg[0];
-
+        System.out.println(command);
         for(int i =1; i<msg.length;i++){
-            this.message = this.message + msg[i];
-
+            this.message += msg[i];
         }
-
+        message += "\n";
+        System.out.print(message);
     }
 
     public  Message(String com,String msg){
         if(!msg.contains(":")){
             this.command = com;
-            this.message = msg;
+            this.message = msg+"\n";
         }
-
     }
 
 
     public String  getMessageAsString(){
-
-        return command +":" + message+"/n";
+        return command +":" + message;
     }
 
 
     public String[]  getMessageAsStringArray(){
-
         String[] cmdMsg = new String[2];
         cmdMsg[0] = command;
         cmdMsg[1] =message;
