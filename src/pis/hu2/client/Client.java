@@ -46,6 +46,10 @@ public class Client {
 
     }
 
+    /**
+     * Methode connect:
+     * Versucht sich mit dem Server zu verbunden und
+     */
     public void connect() {
         keyboard = new BufferedReader(new InputStreamReader(System.in));
         try {
@@ -68,6 +72,11 @@ public class Client {
         }
     }
 
+    /**
+     * Methode listen:
+     * Versucht Nachrichten vom Server zu lesen. Wenn eine Zeile eingegeben wird, sende eine Nachricht.
+     * Ansonsten lese vom Server. Überprüfen die Commands die der Server liefert.
+     */
     public void listen() {
         if (s != null) {
             while (!s.isClosed()) {
