@@ -27,12 +27,20 @@ public class Message {
         }
     }
 
-
+    /**
+     * Fügt aus einem Commando und einer Nachricht eine syntaktisch korrekte Nachricht.
+     * @return String Nachricht zu verschicken
+     */
     public String  getMessageAsString(){
         return command +":" + message;
     }
 
-
+    /**
+     * Gibt ein String Array zurück.
+     * Das erste Array ist das Komando.
+     * Das zweite Array ist die Nachricht.
+     * @return String[] Command& MessageString
+     */
     public String[]  getMessageAsStringArray(){
         String[] cmdMsg = new String[2];
         cmdMsg[0] = command;
