@@ -9,21 +9,22 @@ public class Message {
     private String message="";
 
     public  Message(String inputmsg){
-        System.out.println(inputmsg);
+        //System.out.println(inputmsg);
         String[] msg = inputmsg.split(":");
         this.command = msg[0];
-        System.out.println(command);
+        //System.out.println(command);
         for(int i =1; i<msg.length;i++){
             this.message += msg[i];
         }
         message += "\n";
-        System.out.print(message);
+        //System.out.print(message);
     }
 
     public  Message(String com,String msg){
         if(!msg.contains(":")){
             this.command = com;
             this.message = msg+"\n";
+           // System.out.println("Message Log| Message = " + message);
         }
     }
 
@@ -32,6 +33,7 @@ public class Message {
      * @return String Nachricht zu verschicken
      */
     public String  getMessageAsString(){
+     //   System.out.println("Message Log| getMessageAsString = " + message);
         return command +":" + message;
     }
 
@@ -45,6 +47,7 @@ public class Message {
         String[] cmdMsg = new String[2];
         cmdMsg[0] = command;
         cmdMsg[1] =message;
+       // System.out.println("Message Log| String Array Message = " + cmdMsg[1]);
         return cmdMsg;
     }
 

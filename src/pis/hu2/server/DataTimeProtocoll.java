@@ -43,9 +43,24 @@ public class DataTimeProtocoll {
         System.out.println("Protokoll gestartet");
         while (!s.isClosed()) {
             try {
-
+                Message msgClient = null;
                 System.out.println("Is running");
+                if(vomClient.readLine().contains("connect"))
+                msgClient = new Message("connect","ok");
+                if(vomClient.readLine().contains("message"))
+                msgClient = new Message(vomClient.readLine());
+
+                if(msgClient != null){
+                    String tosent = msgClient.getMessageAsString();
+                    zumClient.println(tosent);
+                    System.out.println("Server hat eine Nachricht verschickt: " +  tosent);
+                }
+
+                    //System.out.println("Empfange vom Client: " + vomClient.readLine());
                 //String wunsch = vomClient.readLine(); // v. Client empfangen
+         /*     if(!vomClient.readLine().equals("")){
+
+
                 Message inMsg = new Message(vomClient.readLine());
                 String[] msgArray = inMsg.getMessageAsStringArray();
                 String command = msgArray[0];
@@ -56,14 +71,14 @@ public class DataTimeProtocoll {
                     zumClient.println(msg.getMessageAsString());
                     System.out.println("Ok");
                 } else if (command.equals("message")) {
-                    Message rsp = new Message("response", "recieved " + message.subSequence(0,message.length()-1));
+                    Message rsp = new Message("response", "recieved " + message.subSequence(0,message.length()));
                     zumClient.println(rsp.getMessageAsString());
-                    System.out.println(rsp.getMessageAsString());
+                   // System.out.println(rsp.getMessageAsString());
                 } else if (command.equals("disconect")) {
                     s.close();
                 }
 
-
+              }
                 /*else{
                     zumClient.println(wunsch +" ist als Kommando unzulaessig!");
                     s.close(); // Socket (und damit auch Stroeme) schliessen

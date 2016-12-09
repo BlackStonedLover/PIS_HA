@@ -31,7 +31,7 @@ public class LaunchServer   {
         try {
             int port = 2222; // Port-Nummer
             ServerSocket server = new ServerSocket(port); // Server-Socket
-            System.out.println("DateTimeServer laeuft"); // Statusmeldung
+            System.out.println("Server laeuft"); // Statusmeldung
             Socket s = server.accept(); // Client-Verbindung akzeptieren
             new DataTimeProtocoll(s).transact(); // Protokoll abwickeln
         } catch (ArrayIndexOutOfBoundsException ae) {

@@ -59,7 +59,7 @@ public class Client {
 
             Message msg = new Message("connect", nickname);
             sendMessage(msg);
-            listen();
+
 
         } catch (ArrayIndexOutOfBoundsException ae) {
             System.out.println("Aufruf: ");
@@ -70,6 +70,7 @@ public class Client {
             //System.out.println(e);
             System.out.println("IO-Error");
         }
+        listen();
     }
 
     /**
@@ -82,28 +83,37 @@ public class Client {
             while (!s.isClosed()) {
                 try {
 
-                    if (keyboard.read() != '\n') {
+                    if (keyboard.readLine().contains("\n")) {
                         Message outputMsg = new Message("message", keyboard.readLine());
                         sendMessage(outputMsg);
+                    }else
+
+                    if(fromServer.readLine().contains("connect")){
+                        System.out.println("Conected");
                     }
-                    if (fromServer.readLine() != null) {
+                    else{
+                        System.out.println("Nothing Happened");
+                    }
+                    /*
                         Message msgServer = new Message(fromServer.readLine());
                         String[] msgArray = msgServer.getMessageAsStringArray();
                         String command = msgArray[0];
                         String message = msgArray[1];
+                        System.out.println("Got an Command: " +command);
                         if (!confConnection && command.equals("connect")) {
 
                             if (message.equals("ok")) ;
                             {
                                 confConnection = true;
                             }
+
                         } else if (command.equals("disconect")) {
-                            //Disconect
+                            s.close();
                         } else {
                             System.out.println(message);
                         }
-                    }
 
+*/
 
                 } catch (ArrayIndexOutOfBoundsException ae) {
                     System.out.println("Aufruf: ");
@@ -119,8 +129,9 @@ public class Client {
     }
 
     public void sendMessage(Message msgToSend) {
-        System.out.println(msgToSend.getMessageAsString());
-        toServer.println(msgToSend.getMessageAsString());
+        //System.out.println(msgToSend.getMessageAsString());
+        String msgOut = msgToSend.getMessageAsString();
+        toServer.println(msgOut);
     }
 
 }
