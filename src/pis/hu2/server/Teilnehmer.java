@@ -5,10 +5,29 @@
  */
 package pis.hu2.server;
 
+import java.net.Socket;
+
 /**
  *
- * @author CKC
+ * @author Stephan Wolfgang Kusch
  */
 public class Teilnehmer {
+    
+    private Socket socket;
+    private String name;
+    
+    public void Teilnemer(Socket socket, String name){
+        
+        this.name= name;
+        this.socket = socket; 
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public String getName() {
+        return name;
+    }
     
 }
