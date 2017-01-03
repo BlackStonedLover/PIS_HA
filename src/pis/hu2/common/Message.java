@@ -4,6 +4,7 @@ package pis.hu2.common;
  * @author Kühn, Konstantin
  * @matrikelnummer 5060992
  * @hausübung PIS Hausübung 2
+ *
  */
 public class Message {
     /**
