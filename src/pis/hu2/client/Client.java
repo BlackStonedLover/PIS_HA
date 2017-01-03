@@ -2,136 +2,215 @@ package pis.hu2.client;
 
 import pis.hu2.common.Message;
 
-import java.io.*;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.UnknownHostException;
-
+import java.util.ArrayList;
 
 /**
- * Created by Dijivu on 08.12.2016.
+ * @author Kühn, Konstantin
+ * @matrikelnummer 5060992
+ * @hausübung PIS Hausübung 2
+ *
+ * @klasseninvariante Die Variablen <code>VerbundeneNutzer</code> und <code>stapel</code> sind zu
+ * keiner Zeit null. Der Socket <code>s</code> ist nach dem Aufruf von run() zu keiner
+ * Zeit null.
  */
-public class Client {
-
-    private String ip;
-    private int port;
-    private String nickname = "";
-
-    private int maxNameLenght = 30;
-
-    private boolean confConnection = false;
-    BufferedReader keyboard;
-
-    private BufferedReader fromServer;
-    private PrintWriter toServer;
+public class Client implements Runnable {
+    private String userName;
+    private String hostIP;
+    private int hostPort;
+    private boolean neueEintraege = false;
     private Socket s;
+    private StringBuilder stapel = new StringBuilder();
 
+    private  ArrayList<String> VerbundeneNutzer = new ArrayList<String>();
 
-    private enum commandState {
-        connect,
-        message,
-        disconect
-
-    }
-
-    private commandState cS = commandState.connect;
-
-    public Client(String ip, int port, String nickname) {
-        this.ip = ip;
-        this.port = port;
-
-        if (nickname.length() < maxNameLenght && !nickname.contains(":")) {
-            this.nickname = nickname;
-            connect();
-        }
-
+    /**
+     * Client Konstruktor mit Standard Werten
+     */
+    public Client() {
+        this.userName = "Client";
+        this.hostIP = "127.0.0.1";
+        this.hostPort = 7575;
     }
 
     /**
-     * Methode connect:
-     * Versucht sich mit dem Server zu verbunden und
+     * Variabler Client Konstruktor, bei dem Nutzerspezifische Daten eingesetzt werden
+     * @Bedingung Alle übergebene Objekte dürfen nicht null sein
+     * @param userName
+     * @param hostIP
+     * @param hostPort
      */
-    public void connect() {
-        keyboard = new BufferedReader(new InputStreamReader(System.in));
+    public Client(String userName, String hostIP, int hostPort) {
+        this.userName = userName;
+        this.hostIP = hostIP;
+        this.hostPort = hostPort;
+    }
+    public String getUserName() {
+        return userName;
+    }
+
+    public synchronized boolean isNeueEintraege() {
+        return neueEintraege;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+
+    public StringBuilder getStapel() {
+        return stapel;
+    }
+
+    public ArrayList<String> getVerbundene_clients() {
+        return VerbundeneNutzer;
+    }
+
+
+
+    public synchronized void setNeueEintraege(boolean neueEintraege) {
+        this.neueEintraege = neueEintraege;
+    }
+
+
+    public Socket getS() {
+        return s;
+    }
+    public void setHostIP(String hostIP) {
+        this.hostIP = hostIP;
+    }
+
+    public void setHostPort(int hostPort) {
+        this.hostPort = hostPort;
+    }
+
+    /**
+     * @see java.lang.Runnable#run()
+     */
+    @Override
+    public void run() {
         try {
-            s = new Socket(ip, port);
-            fromServer = new BufferedReader(new InputStreamReader(s.getInputStream()));
-            toServer = new PrintWriter(s.getOutputStream(), true);
+            s = new Socket(hostIP, hostPort);
+            this.sendeNachricht("connect:" + this.getUserName());
+            BufferedReader vomServer = new BufferedReader(
+                    new InputStreamReader(s.getInputStream()));
+            String read_line = null;
+            // Verarbeitet die eingehenden Nachrichten
+            while (!s.isClosed()) {
+                read_line = vomServer.readLine();
+                if (read_line != null) {
 
-            Message msg = new Message("connect", nickname);
-            sendMessage(msg);
+                    Message msgFromServer = new Message(read_line);
+                    System.out.println(msgFromServer.getMessageAsString());
+                    String command = msgFromServer.getMessageAsStringArray()[0];
+                    String message = msgFromServer.getMessageAsStringArray()[1];
+                    switch (command) {
+                        case "refused":
+                            switch (message) {
+                                case "too_many_users":
+                                    stapel.append("Keine Verbindung möglich, zuviele Nutzer!" + "\n");
+                                    break;
 
+                                case "name_in_use":
+                                    stapel.append("Keine Verbidung möglich, der gewählte Benutzername ist leider schon vergeben!" + "\n");
+                                    break;
 
-        } catch (ArrayIndexOutOfBoundsException ae) {
-            System.out.println("Aufruf: ");
-            System.out.println("java Client <HostName> <PortNr> ");
-        } catch (UnknownHostException ue) {
-            System.out.println("Kein DNS-Eintrag fuer " + ip);
-        } catch (IOException e) {
-            //System.out.println(e);
-            System.out.println("IO-Error");
+                                case "invalid_name":
+                                    stapel.append("Keine Verbindung möglich, der gewählte Benutzername ist ungültig!" + "\n");
+                                    break;
+
+                                default:
+                            }
+                            break;
+
+                        case "connect":
+                            if (message.equals("ok")) {
+                                stapel.append("Eine Verbindung zum Server wurde erfolgreich hergestellt!"
+                                        + "\n");
+                            }
+                            break;
+
+                        case "disconnect":
+                            switch (message) {
+                                case "ok":
+                                case "invalid_command":
+                                    stapel.append("Verbindung zum Server wurde unterbrochen!" + "\n");
+                                    VerbundeneNutzer.clear();
+                                    s.close();
+                                    break;
+
+                                default:
+
+                            }
+                            break;
+
+                        case "message":
+                            stapel.append(message + "\n");
+                            break;
+
+                        case "namelist":
+                            VerbundeneNutzer.clear();
+                            for(String u:msgFromServer.getAllUserNames()){
+                                VerbundeneNutzer.add(u);
+                            }
+                            break;
+
+                        default:
+                    }
+                    this.setNeueEintraege(true);
+                    message = null;
+                }
+            }
+            s.close();
+            vomServer.close();
+        } catch (UnknownHostException uhe) {
+            uhe.printStackTrace();
+        } catch (IOException ioe) {
+            stapel.append("Keine Verbindung zum Server möglich!"+"\n");
+            this.setNeueEintraege(true);
         }
-        listen();
     }
 
     /**
-     * Methode listen:
-     * Versucht Nachrichten vom Server zu lesen. Wenn eine Zeile eingegeben wird, sende eine Nachricht.
-     * Ansonsten lese vom Server. Überprüfen die Commands die der Server liefert.
+     * Diese Klasse ermöglicht es Nachirchten zu versenden.
+     *
+     * @precondition Das übergebene Objekt darf nicht NULL sein!
+     * @param msg
+     *            die zu versendene Nachricht
+     * @throws IOException
      */
-    public void listen() {
-        if (s != null) {
-            while (!s.isClosed()) {
-                try {
+    public void sendeNachricht(String msg) throws IOException {
+        if(s != null){
+            if (!s.isClosed()) {
+                PrintWriter socket_out = new PrintWriter(new OutputStreamWriter(
+                        s.getOutputStream()));
 
-                    if (keyboard.readLine().contains("\n")) {
-                        Message outputMsg = new Message("message", keyboard.readLine());
-                        sendMessage(outputMsg);
-                    }else
+                Message msgout = new Message(msg);
+                String cmd = msgout.getMessageAsStringArray()[0];
 
-                    if(fromServer.readLine().contains("connect")){
-                        System.out.println("Conected");
+                switch (cmd) {
+                    case "connect":
+                    case "message":
+                    case "disconnect": {
+                        socket_out.write(msgout.getMessageAsString() + "\n");
+                        break;
                     }
-                    else{
-                        System.out.println("Nothing Happened");
+                    default: {
+                        Message dftMsg = new Message("message",msg);
+                        socket_out.write(msgout.getMessageAsString() + "\n");
                     }
-                    /*
-                        Message msgServer = new Message(fromServer.readLine());
-                        String[] msgArray = msgServer.getMessageAsStringArray();
-                        String command = msgArray[0];
-                        String message = msgArray[1];
-                        System.out.println("Got an Command: " +command);
-                        if (!confConnection && command.equals("connect")) {
-
-                            if (message.equals("ok")) ;
-                            {
-                                confConnection = true;
-                            }
-
-                        } else if (command.equals("disconect")) {
-                            s.close();
-                        } else {
-                            System.out.println(message);
-                        }
-
-*/
-
-                } catch (ArrayIndexOutOfBoundsException ae) {
-                    System.out.println("Aufruf: ");
-                    System.out.println("java Client <HostName> <PortNr> ");
-                } catch (UnknownHostException ue) {
-                    System.out.println("Kein DNS-Eintrag fuer " + ip);
-                } catch (IOException e) {
-                    //System.out.println(e);
-                    System.out.println("IO-Error");
                 }
+                socket_out.flush();
             }
         }
     }
 
-    public void sendMessage(Message msgToSend) {
-        //System.out.println(msgToSend.getMessageAsString());
-        String msgOut = msgToSend.getMessageAsString();
-        toServer.println(msgOut);
-    }
+
 
 }
