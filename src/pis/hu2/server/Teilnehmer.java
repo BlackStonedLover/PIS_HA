@@ -5,13 +5,22 @@
  */
 package pis.hu2.server;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import pis.hu2.common.Message;
+
 
 /**
  *
  * @author Stephan Wolfgang Kusch
+ * Die Variablen <code>socket</code> und <code>client</code> sind
+ * zu keiner Zeit null. Die Variable <code>name</code> erhält bei einer 
+ * Verbindung ihren Wert. Dieser bleibt während der Verbindung bestehen.
  */
 public class Teilnehmer implements Runnable {
     
@@ -19,11 +28,22 @@ public class Teilnehmer implements Runnable {
     private String m_Name;
     private final TeilnehmerListe m_ClientList;
     
+    /**
+     * Teilnehmer-Konstruktor mit Werten zur Initialisierung der Variablen.
+     * @param socket
+     * @param clientList 
+     */
     public Teilnehmer(Socket socket, TeilnehmerListe clientList){
         
         this.m_Socket = socket;
         this.m_ClientList = clientList;
     }
+
+    /**
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Runnable#run()
+     */
 
     @Override
     public void run() {
@@ -77,6 +97,12 @@ public class Teilnehmer implements Runnable {
         return m_Name;
     }
     
+    /**
+     * Prüft ob ein Benutzername noch Verfügbar ist
+     * @param name
+     * @return 
+     */
+    
     private synchronized boolean isNameUsed(String name){
         
         for (int i = 0; i < m_ClientList.getSize(); i++)
@@ -90,10 +116,24 @@ public class Teilnehmer implements Runnable {
         return false;
     }
     
+    /**
+     * Prüft ob der gewählte Name zulässig ist 
+     * @param name
+     * @return  true wenn zulässig
+     *          false wenn nicht
+     */    
     private synchronized boolean isNameCorrect(String name){
         
         return !(name.length() > 30 || name.length() == 0 || name.contains(":"));
     }
+    
+    /**
+     * Erzeugt einen String in der Form namelist:NAME:NAME:... mit allen
+     * vorhandenen Teilnehmern.
+     * 
+     * @return Gibt die Namelist zurück
+     */
+
     
     public synchronized String getNamelist(){
         
@@ -106,17 +146,24 @@ public class Teilnehmer implements Runnable {
         return new String(sb);
         
     }
+    
+    /**
+     * Gibt an was bei einer Connect Anfrage geschehen soll
+     * @param socket_out
+     * @param messageClient
+     * @throws IOException 
+     */
       
-    private void commandConnect(PrintWriter socket_out, String message) throws IOException{
+    private void commandConnect(PrintWriter socket_out, String messageClient) throws IOException{
         
         if (m_ClientList.findClient(this) <= -1){
         
-            m_Name = message;
+            m_Name = messageClient;
         }
 
         if (!isNameUsed(this.getName()) && isNameCorrect(this.getName()) && m_ClientList.findClient(this) <= -1){
             
-            m_ClientList.addTeilnehmer(this);
+            m_ClientList.add(this);
             socket_out.write("connect:ok" + "\n");
             m_ClientList.sendMessage(this.getNamelist(), "namelist");
             Server.getLog().append("Teilnehmer: ").append(this.getName()).append(" hat sich verbunden!\n");
@@ -144,9 +191,17 @@ public class Teilnehmer implements Runnable {
         }     
     }
     
-    private boolean commandDisconnect(PrintWriter socket_out, String message) throws IOException{
+    /**
+     * Gibt an was bei einer Disconnect Anfrage geschehen soll
+     * @param socket_out
+     * @param messageClient
+     * @return
+     * @throws IOException 
+     */
+    
+    private boolean commandDisconnect(PrintWriter socket_out, String messageClient) throws IOException{
         
-        if(message.equals("")){
+        if(messageClient.equals("")){
             
             m_ClientList.remove(m_ClientList.findClient(this));
             socket_out.write("disconnect:ok" + "\n");
@@ -161,6 +216,11 @@ public class Teilnehmer implements Runnable {
         return false;        
     }
     
+    /**
+     * Gibt an was sonstigen Anfragen geschehen soll
+     * @param socket_out
+     * @throws IOException 
+     */
     private void commandDefault(PrintWriter socket_out) throws IOException{
         
         m_ClientList.remove(m_ClientList.findClient(this));
@@ -171,36 +231,44 @@ public class Teilnehmer implements Runnable {
         m_Socket.close();        
     }
     
+    /**
+     * Verarbeitet die Nachricht nach Connect, Disconect und Default 
+     * @param socket_out
+     * @param read_line
+     * @throws IOException 
+     */
+    
     private void processMessage(PrintWriter socket_out, String read_line) throws IOException{
-        
-            if (read_line != null){
-                
-                String command = read_line.substring(0, read_line.indexOf(':') + 1);
-                String message = read_line.substring(read_line.indexOf(':') + 1, read_line.length());
 
-                switch (command){
-                    
-                    case "connect:":
-                        commandConnect(socket_out, message);
+        if (read_line != null){
+
+            Message msgIn = new Message(read_line);
+            String command = msgIn.getMessageAsStringArray()[0];
+            String message = msgIn.getMessageAsStringArray()[1];
+
+            switch (command){
+
+                case "connect:":
+                    commandConnect(socket_out, message);
+                    break;
+
+                case "message:":
+                    m_ClientList.sendMessage(read_line, this.getName());
+                    break;
+
+                case "disconnect:":
+                    // Wenn disconnect:TEXT ankommt, geht es bei default: weiter.
+                    if(commandDisconnect(socket_out, message)){
+
                         break;
+                    }
 
-                    case "message:":
-                        m_ClientList.sendMessage(read_line, this.getName());
-                        break;
+                default:
+                    commandDefault(socket_out);
+                    break;
+            }
 
-                    case "disconnect:":
-                        // Wenn disconnect:TEXT ankommt, geht es bei default: weiter.
-                        if(commandDisconnect(socket_out, message)){
-                            
-                            break;
-                        }
-
-                    default:
-                        commandDefault(socket_out);
-                        break;
-                }
-
-                read_line = null;
-            }        
-        }
+            read_line = null;
+        }        
     }
+}

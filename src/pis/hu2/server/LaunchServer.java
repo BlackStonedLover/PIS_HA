@@ -5,42 +5,18 @@
  */
 package pis.hu2.server;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-
 /**
  *
- * @author CKC
+ * @author Stephan Wolfgang Kusch
  */
-public class LaunchServer   {
-    
+public class LaunchServer {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-
-        try {
-            int port = 2222; // Port-Nummer
-            ServerSocket server = new ServerSocket(port); // Server-Socket
-            System.out.println("Server laeuft"); // Statusmeldung
-            Socket s = server.accept(); // Client-Verbindung akzeptieren
-            new DataTimeProtocoll(s).transact(); // Protokoll abwickeln
-        } catch (ArrayIndexOutOfBoundsException ae) {
-            System.out.println("Aufruf: java DateTimeServer <Port-Nr>");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //launch(args);
         
-    }
-    
+        ServerGUI ui = new ServerGUI(new Server());
+        new Thread(ui).start();
+    }   
 }
