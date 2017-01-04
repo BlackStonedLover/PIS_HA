@@ -62,10 +62,10 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
         startButton.addActionListener(this);
         topPanel.add(startButton);
 
-        stopButton = new JButton("Stop Server");
-        stopButton.setActionCommand("stop");
-        stopButton.addActionListener(this);
-        topPanel.add(stopButton);
+        //stopButton = new JButton("Stop Server");
+        //stopButton.setActionCommand("stop");
+        //stopButton.addActionListener(this);
+        //topPanel.add(stopButton);
 
         // server-log
         messages = new JTextArea();
@@ -104,8 +104,9 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
         server_Thread = new Thread(server);
         if (command.equals("start")) {
             
-            startButton.setEnabled(false);
-            stopButton.setEnabled(true);
+            startButton.setText("Stop Server");
+            startButton.setActionCommand("stop");
+            //stopButton.setEnabled(true);
             server.setPort(Integer.valueOf(portTextField.getText()));
             if(!server_Thread.isAlive()){
 
@@ -113,8 +114,10 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
             }
         } else if (command.equals("stop")) {
 
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
+            //startButton.setEnabled(true);
+            //stopButton.setEnabled(false);
+            startButton.setText("Start Server");
+            startButton.setActionCommand("start");
             server.getClients().sendMessage("disconnect:ok", "Server");
             server_Thread.interrupt();
             try {
