@@ -19,9 +19,9 @@ import java.net.Socket;
  */
 public class Server implements Runnable {
     
-    private int port;
-    private ServerSocket serverSocket;
-    private TeilnehmerListe clients;
+    private int m_Port;
+    private ServerSocket m_ServerSocket;
+    private TeilnehmerListe m_Clients;
     private static boolean changed = false;
     private static StringBuilder log = new StringBuilder();
     
@@ -31,8 +31,8 @@ public class Server implements Runnable {
 
     public Server(){
         
-        this.clients = new TeilnehmerListe();
-        this.port = 7575;
+        this.m_Clients = new TeilnehmerListe();
+        this.m_Port = 7575;
     }
     
     /**
@@ -42,8 +42,8 @@ public class Server implements Runnable {
     
     public Server(int port) {
         
-        this.port = port;
-        this.clients = new TeilnehmerListe();
+        this.m_Port = port;
+        this.m_Clients = new TeilnehmerListe();
     }
 
     /**
@@ -57,16 +57,16 @@ public class Server implements Runnable {
         
         try {
             
-            serverSocket = new ServerSocket(port);
+            m_ServerSocket = new ServerSocket(m_Port);
             // Wartet auf eingehende Verbindungen und erzeugt für jede, einen einzelnen Thread.
-            while (!serverSocket.isClosed()) {
+            while (!m_ServerSocket.isClosed()) {
                 
                 log.append("Warte auf eingehende Verbindung..." + "\n");
                 changed = true;
-                Socket clientSocket = serverSocket.accept();
-                if (clients.getSize() < 3) {
+                Socket clientSocket = m_ServerSocket.accept();
+                if (m_Clients.getSize() < 3) {
                     
-                    Teilnehmer handler = new Teilnehmer(clientSocket, clients);
+                    Teilnehmer handler = new Teilnehmer(clientSocket, m_Clients);
                     new Thread(handler).start();
                 } else {
                     
@@ -85,17 +85,17 @@ public class Server implements Runnable {
 
     public synchronized void setPort(int port) {
         
-        this.port = port;
+        this.m_Port = port;
     }
 
     public synchronized TeilnehmerListe getClients() {
         
-        return clients;
+        return m_Clients;
     }
 
     public synchronized ServerSocket getServerSocket() {
         
-        return serverSocket;
+        return m_ServerSocket;
     }
 
     public synchronized static StringBuilder getLog() {

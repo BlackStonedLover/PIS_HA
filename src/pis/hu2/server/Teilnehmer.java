@@ -248,15 +248,15 @@ public class Teilnehmer implements Runnable {
 
             switch (command){
 
-                case "connect:":
+                case "connect":
                     commandConnect(socket_out, message);
                     break;
 
-                case "message:":
+                case "message":
                     m_ClientList.sendMessage(read_line, this.getName());
                     break;
 
-                case "disconnect:":
+                case "disconnect":
                     // Wenn disconnect:TEXT ankommt, geht es bei default: weiter.
                     if(commandDisconnect(socket_out, message)){
 

@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import pis.hu2.common.Message;
 
 
 /**
@@ -23,15 +24,15 @@ import java.util.List;
 
 public class TeilnehmerListe {
 
-    private volatile List<Teilnehmer> clients;
-    private int client_num = 0;
+    private volatile List<Teilnehmer> m_Clients;
+    private int m_ClientNum = 0;
 
     /**
      * TeilnehmerListe-Konstruktor mit Werten zur Initialisierung der Variablen.
      */
     public TeilnehmerListe() {
         
-        clients = new ArrayList<Teilnehmer>();
+        m_Clients = new ArrayList<Teilnehmer>();
     }
 
     /**
@@ -43,8 +44,8 @@ public class TeilnehmerListe {
      */
     public synchronized void add(Teilnehmer client) {
         
-        client_num++;
-        clients.add(client);
+        m_ClientNum++;
+        m_Clients.add(client);
     }
 
     /**
@@ -57,7 +58,7 @@ public class TeilnehmerListe {
      */
     public synchronized Teilnehmer get(int i) {
         
-        return clients.get(i);
+        return m_Clients.get(i);
     }
 
     /**
@@ -69,8 +70,8 @@ public class TeilnehmerListe {
      */
     public synchronized void remove(int i) {
         
-        client_num--;
-        clients.remove(i);
+        m_ClientNum--;
+        m_Clients.remove(i);
     }
 
     /**
@@ -84,7 +85,7 @@ public class TeilnehmerListe {
     public synchronized int findClient(Teilnehmer client) {
         
         int counter = 0;
-        for (Teilnehmer gesucht : clients) {
+        for (Teilnehmer gesucht : m_Clients) {
 
             if (gesucht.equals(client)) {
 
@@ -109,47 +110,49 @@ public class TeilnehmerListe {
      */
     public synchronized void sendMessage(String msg, String name) {
         
-        String command = null;
+        String m_Command = null;
         /* @param already_sent
          * Wird benötigt, damit die Nachricht nicht, für die Anzahl
          * der vorhandenen Teilnehmern, in den Server-Log geschrieben wird.
          */
-        boolean already_sent = false; 
-        for (Teilnehmer client : clients) {
+        boolean is_sent = false; 
+        
+
+        
+        for (Teilnehmer client : m_Clients) {
             
             try {
                 
                 PrintWriter socket_out = new PrintWriter(new OutputStreamWriter(client.getSocket().getOutputStream()));
-                if (msg.contains(":")) {
-                    
-                    command = msg.substring(0, msg.indexOf(':') + 1);
-                } else {
-                    
-                    command = msg;
-                }
-                switch (command) {
+                Message msgIn = new Message(msg);
+                m_Command = msgIn.getMessageAsStringArray()[0];
+                String message = msgIn.getMessageAsStringArray()[1];
 
-                    case "message:": {
+                switch (m_Command) {
 
+                    case "message": {
+                        
+                        message = name + ":" + message;
+                        Message msgOut = new Message(m_Command, message);
                         String message_cut = msg.substring(msg.indexOf(':') + 1, msg.length());
-                        socket_out.write("message:" + name + ":" + message_cut + "\n");
-                        if (!already_sent)
+                        socket_out.write( msgOut.getMessageAsStringArray() + "\n");
+                        if (!is_sent)
                             
-                                Server.getLog().append(name).append(":").append(message_cut).append("\n");
+                            Server.getLog().append(name).append(":").append(message_cut).append("\n");
                         break;
                     }
-                    case "namelist:": {
+                    case "namelist": {
                         
                         socket_out.write(msg + "\n");
-                        if (!already_sent)
+                        if (!is_sent)
                             
                             Server.getLog().append(msg).append("\n");
                         break;
                     }
-                    case "disconnect:": {
+                    case "disconnect": {
                         
                         socket_out.write("disconnect:ok" + "\n");
-                        if (!already_sent)
+                        if (!is_sent)
                             
                             Server.getLog().append("Die Verbindung aller Teilnehmer wurde beendet!" + "\n");
                         break;
@@ -157,12 +160,12 @@ public class TeilnehmerListe {
                     default:
                         
                         socket_out.write("message:" + name + ":" + msg + "\n");
-                        if (!already_sent) Server.getLog().append(name).append(": ").append(msg).append("\n");
+                        if (!is_sent) Server.getLog().append(name).append(": ").append(msg).append("\n");
                 }
-                already_sent = true;
+                is_sent = true;
                 Server.setChanged(true);
                 socket_out.flush();
-                if(command.equals("disconnect:")){
+                if(m_Command.equals("disconnect:")){
 
                     client.getSocket().close();
                 }
@@ -171,24 +174,24 @@ public class TeilnehmerListe {
                 e.printStackTrace();
             }
         }
-        if (command != null) {
+        if (m_Command != null) {
             
-            if (command.equals("disconnect:")) {
+            if (m_Command.equals("disconnect:")) {
                 
-                clients.clear();
-                client_num = 0;
+                m_Clients.clear();
+                m_ClientNum = 0;
             }
         }
     }
 
     /**
-     * Gibt die Anzahl der in der Teilnehmerliste befindlichen Nutzer zurück.
+     * Gibt die Anzahl der Nutzer in der Teilnehmerliste zurück.
      * 
      * @return Anzahl der Teilnehmer
      */
     public synchronized int getSize() {
         
-        return client_num;
+        return m_ClientNum;
     }
 
     /**
@@ -199,7 +202,7 @@ public class TeilnehmerListe {
     public synchronized ArrayList<String> isConnected() {
         
         ArrayList<String> connected_clients = new ArrayList<String>();
-        for (Teilnehmer client : clients) {
+        for (Teilnehmer client : m_Clients) {
             
             connected_clients.add(client.getName());
         }

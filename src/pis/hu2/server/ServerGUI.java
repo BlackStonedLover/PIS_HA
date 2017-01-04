@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -26,15 +28,14 @@ import javax.swing.JTextField;
 
 @SuppressWarnings("serial")
 public class ServerGUI extends JFrame implements ActionListener, WindowListener, Runnable {
-    private JTextField ipTextField;
+    
     private JTextField portTextField;
-    private JButton startButton;
-    private Server server;
-    private JTextArea messages;
+    private JButton m_OnOffButton;
+    private Server m_Server;
+    private JTextArea m_Messages;
     private DefaultListModel<String> defMod;
-    private JButton stopButton;
     private JTextField messageTextField;
-    private Thread server_Thread;
+    private Thread m_ServerThread;
 
     /**
      * Erzeugt die grafische Oberfläche und verarbeitet über die Server Schnittstelle mit dem
@@ -43,35 +44,27 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
      * @precondition Das übergebene Objekt darf nicht NULL sein!
      * @param server
      */
-    public ServerGUI(Server server) {
+    public ServerGUI(Server server) throws UnknownHostException {
         super("Server");
-        this.server = server;
+        this.m_Server = server;
         this.addWindowListener(this);
 
         // top panel
         JPanel topPanel = new JPanel();
-        topPanel.add(new JLabel(" IP:"));
-        ipTextField = new JTextField("", 10);
-        ipTextField.setEnabled(false);
+        topPanel.add(new JLabel(" IP :  "+ Inet4Address.getLocalHost().getHostAddress()));
         portTextField = new JTextField("7575", 4);
-        topPanel.add(ipTextField);
         topPanel.add(new JLabel(" Port:"));
         topPanel.add(portTextField);
-        startButton = new JButton("Start Server");
-        startButton.setActionCommand("start");
-        startButton.addActionListener(this);
-        topPanel.add(startButton);
-
-        //stopButton = new JButton("Stop Server");
-        //stopButton.setActionCommand("stop");
-        //stopButton.addActionListener(this);
-        //topPanel.add(stopButton);
+        m_OnOffButton = new JButton("Start Server");
+        m_OnOffButton.setActionCommand("start");
+        m_OnOffButton.addActionListener(this);
+        topPanel.add(m_OnOffButton);
 
         // server-log
-        messages = new JTextArea();
-        messages.setEditable(false);
-        messages.setLineWrap(true);
-        messages.setWrapStyleWord(true);
+        m_Messages = new JTextArea();
+        m_Messages.setEditable(false);
+        m_Messages.setLineWrap(true);
+        m_Messages.setWrapStyleWord(true);
 
         // list of users
         defMod = new DefaultListModel<String>();
@@ -87,7 +80,7 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
         // Frame
         add(topPanel, "North");
         add(new JScrollPane(users), "West");
-        add(new JScrollPane(messages), "Center");
+        add(new JScrollPane(m_Messages), "Center");
         add(messageTextField, "South"); // "South" == BorderLayout.SOUTH
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 200);
@@ -100,51 +93,48 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
      */
     public void actionPerformed(ActionEvent e) {
         
-        String command = e.getActionCommand();
-        server_Thread = new Thread(server);
-        if (command.equals("start")) {
+        String m_Command = e.getActionCommand();
+        m_ServerThread = new Thread(m_Server);
+        if (m_Command.equals("start")) {
             
-            startButton.setText("Stop Server");
-            startButton.setActionCommand("stop");
-            //stopButton.setEnabled(true);
-            server.setPort(Integer.valueOf(portTextField.getText()));
-            if(!server_Thread.isAlive()){
+            m_OnOffButton.setText("Stop Server");
+            m_OnOffButton.setActionCommand("stop");
+            m_Server.setPort(Integer.valueOf(portTextField.getText()));
+            if(!m_ServerThread.isAlive()){
 
-                server_Thread.start();
+                m_ServerThread.start();
             }
-        } else if (command.equals("stop")) {
+        } else if (m_Command.equals("stop")) {
 
-            //startButton.setEnabled(true);
-            //stopButton.setEnabled(false);
-            startButton.setText("Start Server");
-            startButton.setActionCommand("start");
-            server.getClients().sendMessage("disconnect:ok", "Server");
-            server_Thread.interrupt();
+            m_OnOffButton.setText("Start Server");
+            m_OnOffButton.setActionCommand("start");
+            m_Server.getClients().sendMessage("disconnect:ok", "Server");
+            m_ServerThread.interrupt();
             try {
 
-                server.getServerSocket().close();
+                m_Server.getServerSocket().close();
             } catch (IOException e1) {
 
                 e1.printStackTrace();
             }
-        } else if (command.equals("send")) {
+        } else if (m_Command.equals("send")) {
             
             if(messageTextField.getText().equals("disconnect:")){
                 
-                startButton.setEnabled(true);
-                stopButton.setEnabled(false);
-                server.getClients().sendMessage("disconnect:ok", "Server");
-                server_Thread.interrupt();
+                m_OnOffButton.setText("Start Server");
+                m_OnOffButton.setActionCommand("start");
+                m_Server.getClients().sendMessage("disconnect:ok", "Server");
+                m_ServerThread.interrupt();
                 try {
                     
-                    server.getServerSocket().close();
+                    m_Server.getServerSocket().close();
                 } catch (IOException e1) {
                     
                     e1.printStackTrace();
                 }
             } else {
                 
-                server.getClients().sendMessage(messageTextField.getText(), "Server");
+                m_Server.getClients().sendMessage(messageTextField.getText(), "Server");
             }
             messageTextField.setText("");
         }
@@ -159,10 +149,10 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
 
         do {
 
-            if(server.isChanged()) {
+            if(m_Server.isChanged()) {
 
-                messages.setText(String.valueOf(Server.getLog()));
-                updateListModel(server.getClients().isConnected());
+                m_Messages.setText(String.valueOf(Server.getLog()));
+                updateListModel(m_Server.getClients().isConnected());
                 Server.setChanged(false);
             }
             try {
@@ -186,9 +176,9 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
     private void updateListModel(ArrayList<String> verbundene_clients){
 
         defMod.clear();
-        for(int i = 0; i < server.getClients().isConnected().size(); i++){
+        for(int i = 0; i < m_Server.getClients().isConnected().size(); i++){
 
-            defMod.add(i, server.getClients().isConnected().get(i));
+            defMod.add(i, m_Server.getClients().isConnected().get(i));
         }
     }
 
@@ -203,11 +193,11 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
         // Ermöglicht ein sauberes Beenden des Servers durch den Schließen-Knopf
         try {
             
-            if(server.getServerSocket() != null){
+            if(m_Server.getServerSocket() != null){
                 
-                server.getClients().sendMessage("disconnect:ok", "Server");
-                server_Thread.interrupt();
-                server.getServerSocket().close();
+                m_Server.getClients().sendMessage("disconnect:ok", "Server");
+                m_ServerThread.interrupt();
+                m_Server.getServerSocket().close();
             }
         } catch (IOException e1) {
             
