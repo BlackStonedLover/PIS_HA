@@ -22,8 +22,18 @@ public class Message {
         String[] msg = inputmsg.split(":");
         this.command = msg[0];
         //System.out.println(command);
-        for(int i =1; i<msg.length;i++){
-            this.message += msg[i];
+        if(command.equals("namelist")){
+            
+            for(int i =1; i<msg.length;i++){
+
+                this.message = this.message + msg[i] + ":";
+            }
+        } else {
+            
+            for(int i =1; i<msg.length;i++){
+                
+                this.message = this.message + msg[i];
+            }
         }
         //message += "\n";
         //System.out.print(message);
@@ -34,7 +44,17 @@ public class Message {
      * @param com
      * @param msg
      */
-    public  Message(String com,String msg){
+    public  Message(String com, String name, String msg){ 
+        
+        if(!msg.contains(":")){
+            
+            this.command = com;
+            this.message = name + ":" + msg;
+           // System.out.println("Message Log| Message = " + message);
+        }
+    }
+    
+    public  Message(String com,String msg){ 
         if(!msg.contains(":")){
             this.command = com;
             this.message = msg;
