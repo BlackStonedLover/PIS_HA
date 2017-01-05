@@ -28,12 +28,23 @@ public class Message {
 
                 this.message = this.message + msg[i] + ":";
             }
+        } else if(command.equals("message") && msg.length > 1){
+            
+            this.message = msg[1];
+            
+            for(int i = 2 ; i<msg.length;i++){
+                
+                this.message = this.message +":"+ msg[i];
+            }
+            System.out.println("Message ist : " + message);
+            
         } else {
             
             for(int i = 1; i<msg.length;i++){
                 
                 this.message = this.message + msg[i];
             }
+            System.out.println("Message ist : " + message);
         }
         //message += "\n";
         //System.out.print(message);
