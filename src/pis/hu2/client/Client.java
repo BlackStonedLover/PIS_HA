@@ -203,14 +203,11 @@ public class Client implements Runnable {
                     }
                     default: {
                         Message dftMsg = new Message("message",msg);
-                        socket_out.write(msgout.getMessageAsString() + "\n");
+                        socket_out.write(dftMsg.getMessageAsString() + "\n");
                     }
                 }
                 socket_out.flush();
             }
         }
     }
-
-
-
 }
