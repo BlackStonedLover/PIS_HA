@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import pis.hu2.common.Message;
 
@@ -132,13 +133,11 @@ public class TeilnehmerListe {
 
                     case "message": {
                         
-                        message = name + ":" + message;
-                        Message msgOut = new Message(m_Command, message);
-                        String message_cut = msg.substring(msg.indexOf(':') + 1, msg.length());
-                        socket_out.write( msgOut.getMessageAsStringArray() + "\n");
+                        Message msgOut = new Message("message", name, message);
+                        socket_out.write( msgOut.getMessageAsString() + "\n");
                         if (!is_sent)
                             
-                            Server.getLog().append(name).append(":").append(message_cut).append("\n");
+                            Server.getLog().append(msgOut.getMessageAsStringArray()[1]).append("\n");
                         break;
                     }
                     case "namelist": {
@@ -159,8 +158,10 @@ public class TeilnehmerListe {
                     }
                     default:
                         
-                        socket_out.write("message:" + name + ":" + msg + "\n");
-                        if (!is_sent) Server.getLog().append(name).append(": ").append(msg).append("\n");
+                        Message msgOut = new Message ("message" , name, msg);
+                        socket_out.write(msgOut.getMessageAsString());
+                        if (!is_sent) 
+                            Server.getLog().append(msg);
                 }
                 is_sent = true;
                 Server.setChanged(true);

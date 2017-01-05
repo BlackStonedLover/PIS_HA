@@ -34,7 +34,6 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
     private Server m_Server;
     private JTextArea m_Messages;
     private DefaultListModel<String> defMod;
-    private JTextField messageTextField;
     private Thread m_ServerThread;
 
     /**
@@ -71,17 +70,10 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
         JList<String> users = new JList<String>(defMod);
         users.setPrototypeCellValue("XXXXXXXXXXXXXXXX");
 
-        // text field for typing new messages and broadcast them
-        messageTextField = new JTextField();
-        messageTextField.setActionCommand("send");
-        messageTextField.addActionListener(this);
-
-
         // Frame
         add(topPanel, "North");
         add(new JScrollPane(users), "West");
         add(new JScrollPane(m_Messages), "Center");
-        add(messageTextField, "South"); // "South" == BorderLayout.SOUTH
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 200);
         setVisible(true);
@@ -117,28 +109,7 @@ public class ServerGUI extends JFrame implements ActionListener, WindowListener,
 
                 e1.printStackTrace();
             }
-        } else if (m_Command.equals("send")) {
-            
-            if(messageTextField.getText().equals("disconnect:")){
-                
-                m_OnOffButton.setText("Start Server");
-                m_OnOffButton.setActionCommand("start");
-                m_Server.getClients().sendMessage("disconnect:ok", "Server");
-                m_ServerThread.interrupt();
-                try {
-                    
-                    m_Server.getServerSocket().close();
-                } catch (IOException e1) {
-                    
-                    e1.printStackTrace();
-                }
-            } else {
-                
-                m_Server.getClients().sendMessage(messageTextField.getText(), "Server");
-            }
-            messageTextField.setText("");
         }
-
     }
 
     /** (non-Javadoc)
