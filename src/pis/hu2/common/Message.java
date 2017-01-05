@@ -10,7 +10,7 @@ public class Message {
     /**
      * Diese Klasse sorgt dafür, das die Nachrichten in der richtigen Art und weiße erstellt werden.
      */
-   private String command="";
+    private String command="";
     private String message="";
 
     /**
@@ -30,7 +30,7 @@ public class Message {
             }
         } else {
             
-            for(int i =1; i<msg.length;i++){
+            for(int i = 1; i<msg.length;i++){
                 
                 this.message = this.message + msg[i];
             }
@@ -42,6 +42,7 @@ public class Message {
     /**
      * Konstruktor für die Erstellung einer Nachricht
      * @param com
+     * @param name
      * @param msg
      */
     public  Message(String com, String name, String msg){ 
@@ -61,6 +62,7 @@ public class Message {
            // System.out.println("Message Log| Message = " + message);
         }
     }
+    
 
     /**
      * Fügt aus einem Commando und einer Nachricht eine syntaktisch korrekte Nachricht.
