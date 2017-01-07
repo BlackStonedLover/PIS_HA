@@ -14,6 +14,8 @@ import java.net.Socket;
 /**
  *
  * @author Stephan Wolfgang Kusch
+ * @matrikelnummer 5096996
+ * 
  * Die Variablen <code>clients</code> und <code>log</code> sind nicht null.
  * Die Variable <code>serverSocket</code> wird gesetzt beim Starten des Threads.
  */

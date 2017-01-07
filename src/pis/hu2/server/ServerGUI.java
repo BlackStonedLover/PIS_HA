@@ -25,6 +25,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+/**
+ * @author Stephan Wolfgang Kusch
+ * @matrikelnummer 5096996
+ */
 
 @SuppressWarnings("serial")
 public class ServerGUI extends JFrame implements ActionListener, WindowListener, Runnable {

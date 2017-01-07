@@ -17,6 +17,8 @@ import pis.hu2.common.Message;
 /**
  *
  * @author Stephan Wolfgang Kusch 
+ * @matrikelnummer 5096996
+
  * @klasseninvariante Die Variable <code>clients</code> ist nicht null.
  * Der Wert von <code>client_num</code> befindet sich immer im Bereich von
  * 0 <= client_num <= clients.size() und gibt die aktuelle Anzahl an vorhandenen

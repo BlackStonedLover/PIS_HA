@@ -17,7 +17,9 @@ import pis.hu2.common.Message;
 
 /**
  *
- * @author Stephan Wolfgang Kusch
+ * @author Stephan Wolfgang Kusch 
+ * @matrikelnummer 5096996
+ * 
  * Die Variablen <code>socket</code> und <code>client</code> sind
  * zu keiner Zeit null. Die Variable <code>name</code> erhält bei einer 
  * Verbindung ihren Wert. Dieser bleibt während der Verbindung bestehen.
