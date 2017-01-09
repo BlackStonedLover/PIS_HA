@@ -93,6 +93,7 @@ public class ClientGUI extends JFrame implements ActionListener,
     }
 
     /**
+     * Button Handling
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
@@ -100,13 +101,16 @@ public class ClientGUI extends JFrame implements ActionListener,
             String command = e.getActionCommand();
             client_Thread = new Thread(client);
             if (command.equals("connect")) {
-                connectionButton.setText("Disconnect");
-                connectionButton.setActionCommand("disconnect");
                 client.setUserName(userNameField.getText());
                 client.setHostIP(ipAdressField.getText());
                 client.setHostPort(Integer.valueOf(portTargetfield.getText()));
                 if (!client_Thread.isAlive()) {
                     client_Thread.start();
+
+                }
+                if(!client.isclosed()) {
+                    connectionButton.setText("Disconnect");
+                    connectionButton.setActionCommand("disconnect");
                 }
             } else if (command.equals("send")) {
                 if (messageField.getText().equals("disconnect:")) {

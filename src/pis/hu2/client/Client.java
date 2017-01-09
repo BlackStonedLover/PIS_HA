@@ -52,29 +52,35 @@ public class Client implements Runnable {
         this.hostPort = hostPort;
     }
     public String getUserName() {
+
         return userName;
     }
 
-    public synchronized boolean isNeueEintraege() {
+    public synchronized boolean isNeueEintraege()
+    {
         return neueEintraege;
     }
 
     public void setUserName(String userName) {
+
         this.userName = userName;
     }
 
 
     public StringBuilder getStapel() {
+
         return stapel;
     }
 
-    public ArrayList<String> getVerbundene_clients() {
+    public ArrayList<String> getVerbundene_clients()
+    {
         return VerbundeneNutzer;
     }
 
 
 
     public synchronized void setNeueEintraege(boolean neueEintraege) {
+
         this.neueEintraege = neueEintraege;
     }
 
@@ -82,15 +88,31 @@ public class Client implements Runnable {
     public Socket getS() {
         return s;
     }
-    public void setHostIP(String hostIP) {
+    public void setHostIP(String hostIP)
+    {
         this.hostIP = hostIP;
     }
 
     public void setHostPort(int hostPort) {
+
         this.hostPort = hostPort;
     }
 
     /**
+     * Überprüft ob der Client erfolgreich mit dem Socket verbunden ist.
+     * @return true = isClosed
+     */
+    public  boolean isclosed(){
+        boolean tmp = true;
+        try{
+       tmp = s.isClosed();
+        }catch(NullPointerException nE){
+
+        }
+        return tmp;
+    }
+    /**
+     * Verbindungsaufbau, Nachrichtenempfang
      * @see java.lang.Runnable#run()
      */
     @Override
@@ -114,7 +136,8 @@ public class Client implements Runnable {
                         case "refused":
                             switch (message) {
                                 case "too_many_users":
-                                    stapel.append("Keine Verbindung möglich, zuviele Nutzer!" + "\n");
+                                    stapel.append("Keine Verbindung möglich, zuviele Nutzer online!" + "\n");
+
                                     break;
 
                                 case "name_in_use":
